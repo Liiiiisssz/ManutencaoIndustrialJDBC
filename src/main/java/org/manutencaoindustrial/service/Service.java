@@ -1,9 +1,6 @@
 package org.manutencaoindustrial.service;
 
-import org.manutencaoindustrial.dao.MaquinaDAO;
-import org.manutencaoindustrial.dao.OrdemManutencaoDAO;
-import org.manutencaoindustrial.dao.PecaDAO;
-import org.manutencaoindustrial.dao.TecnicoDAO;
+import org.manutencaoindustrial.dao.*;
 import org.manutencaoindustrial.util.Erros;
 import org.manutencaoindustrial.view.View;
 
@@ -61,11 +58,20 @@ public class Service {
                     }
                 }
                 case 5 ->{
-
+                    var ordemPeca = Cadastro.criarOrdemPeca(sc);
+                    if(ordemPeca != null){
+                        try{
+                            OrdemPecaDAO.criar(ordemPeca);
+                            View.texto("Associação realizada com sucesso!");
+                        } catch (SQLException e){
+                            View.texto("Não foi possível associar a peça.");
+                            e.printStackTrace();
+                        }
+                    }
                 }
-                case 6 ->{
+                case 6 ->
+                    Cadastro.executarManutencao(sc);
 
-                }
                 case 0 ->{
                     opcao = 0;
                     View.texto("Sistema encerrado.");

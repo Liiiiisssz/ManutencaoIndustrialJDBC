@@ -5,6 +5,9 @@ public class OrdemPeca {
     private Peca peca;
     private double quantidade;
 
+    public OrdemPeca(){
+    }
+
     public OrdemPeca(OrdemManutencao ordem, Peca peca, double quantidade) {
         this.ordem = ordem;
         this.peca = peca;

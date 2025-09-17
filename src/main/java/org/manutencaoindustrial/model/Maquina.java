@@ -6,6 +6,9 @@ public class Maquina {
     private String setor;
     private String status;
 
+    public Maquina(){
+    }
+
     public Maquina(int id, String nome, String setor, String status) {
         this.id = id;
         this.nome = nome;

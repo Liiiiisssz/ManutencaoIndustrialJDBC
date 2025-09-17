@@ -1,5 +1,6 @@
 package org.manutencaoindustrial.dao;
 
+import org.manutencaoindustrial.model.OrdemPeca;
 import org.manutencaoindustrial.model.Peca;
 import org.manutencaoindustrial.util.Conexao;
 
@@ -29,7 +30,7 @@ public class PecaDAO {
     public static List<Peca> listPeca(){
         List<Peca> pecas = new ArrayList<>();
         String query = """
-                SELECT (id, nome, estoque)
+                SELECT id, nome, estoque
                 FROM Peca
                 """;
         try(Connection conn = Conexao.conectar();
@@ -48,5 +49,22 @@ public class PecaDAO {
             e.printStackTrace();
         }
         return pecas;
+    }
+
+    public static void atualizarEstoque(Peca peca, OrdemPeca ordemPeca){
+        String query = """
+                UPDATE Peca 
+                SET estoque = estoque - ?
+                WHERE id = ?
+                """;
+        try(Connection conn = Conexao.conectar();
+            PreparedStatement stmt = conn.prepareStatement(query)){
+
+            stmt.setDouble(1, ordemPeca.getQuantidade());
+            stmt.setInt(2, peca.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 }

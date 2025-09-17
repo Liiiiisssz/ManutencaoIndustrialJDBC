@@ -5,6 +5,9 @@ public class Tecnico {
     private String nome;
     private String especialidade;
 
+    public Tecnico(){
+    }
+
     public Tecnico(int id, String nome, String especialidade) {
         this.id = id;
         this.nome = nome;

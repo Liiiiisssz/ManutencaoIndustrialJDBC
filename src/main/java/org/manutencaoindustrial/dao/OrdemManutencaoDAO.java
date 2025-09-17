@@ -33,11 +33,8 @@ public class OrdemManutencaoDAO {
 
     public static List<OrdemManutencao> listarOrdemManutencao(){
         List<OrdemManutencao> ordens = new ArrayList<>();
-        List<Maquina> listMaquina = MaquinaDAO.listarMaquinas();
+        List<Maquina> listMaquina = MaquinaDAO.validar();
         List<Tecnico> listTecnico = TecnicoDAO.listarTecnicos();
-
-        Maquina maquina = null;
-        Tecnico tecnico = null;
 
         String query = """
                 SELECT 
@@ -50,6 +47,9 @@ public class OrdemManutencaoDAO {
 
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
+                Maquina maquina = new Maquina();
+                Tecnico tecnico = new Tecnico();
+
                 int id = rs.getInt("id");
                 int idMaquina = rs.getInt("idMaquina");
                 for(Maquina m : listMaquina){
@@ -75,5 +75,21 @@ public class OrdemManutencaoDAO {
             e.printStackTrace();
         }
         return ordens;
+    }
+
+    public static void atualizarStatus(OrdemManutencao ordem){
+        String query = """
+                UPDATE OrdemManutencao
+                SET status = 'EXECUTADA'
+                WHERE id = ?
+                """;
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(query)){
+
+            stmt.setInt(1, ordem.getId());
+            stmt.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 }

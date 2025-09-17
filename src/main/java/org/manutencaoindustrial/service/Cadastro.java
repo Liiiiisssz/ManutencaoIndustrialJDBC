@@ -1,14 +1,12 @@
 package org.manutencaoindustrial.service;
 
-import org.manutencaoindustrial.dao.MaquinaDAO;
-import org.manutencaoindustrial.dao.OrdemManutencaoDAO;
-import org.manutencaoindustrial.dao.PecaDAO;
-import org.manutencaoindustrial.dao.TecnicoDAO;
+import org.manutencaoindustrial.dao.*;
 import org.manutencaoindustrial.model.*;
 import org.manutencaoindustrial.util.Erros;
 import org.manutencaoindustrial.view.View;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -171,6 +169,9 @@ public class Cadastro {
                             break;
                         }
                     }
+                    if(!valido){
+                        View.texto("Técnico inválido.");
+                    }
                 }
             }
             LocalDate data = LocalDate.now();
@@ -182,13 +183,18 @@ public class Cadastro {
 
     public static OrdemPeca criarOrdemPeca(Scanner sc){
         List<OrdemManutencao> listOrdemManutencao = OrdemManutencaoDAO.listarOrdemManutencao();
+        List<Peca> listPeca = PecaDAO.listPeca();
         boolean valido = false;
         View.texto(" __________________________________");
         View.cabecalho("|      ASSOCIAR PEÇAS À ORDEM      |");
         View.cabecalho("|__________________________________|");
 
+        OrdemManutencao ordemManutencao = null;
+        Peca peca = null;
+
         if(listOrdemManutencao.isEmpty()){
             View.texto("Nenhuma ordem de manutenção disponível.");
+            return null;
         } else {
             View.texto("Ordens de manutenção disponíveis:");
             for(OrdemManutencao o : listOrdemManutencao){
@@ -201,8 +207,118 @@ public class Cadastro {
 
                 for(OrdemManutencao o : listOrdemManutencao){
                     if(o.getId() == id){
-
+                        ordemManutencao = o;
+                        valido = true;
+                        break;
                     }
+                }
+                if(!valido){
+                    View.texto("Ordem de manutenção inválida.");
+                }
+            }
+            valido = false;
+            if(listPeca.isEmpty()){
+                View.texto("Nenhuma peça disponível.");
+                return null;
+            } else {
+                View.texto("Peças disponíveis:");
+                for(Peca p : listPeca){
+                    View.texto("-----------------------------");
+                    System.out.println(p);
+                }
+                while(!valido){
+                    View.texto("ID da peça:");
+                    int id = Erros.entradaInt();
+
+                    for(Peca p : listPeca){
+                        if(p.getId() == id){
+                            peca = p;
+                            valido = true;
+                            break;
+                        }
+                    }
+                    if(!valido){
+                        View.texto("Peça inválida.");
+                    }
+                }
+                double quantidade = 0;
+                while(quantidade <= 0){
+                    View.texto("Quantidade de peças necessária:");
+                    quantidade = Erros.entradaDouble();
+                }
+                return new OrdemPeca(ordemManutencao, peca, quantidade);
+            }
+        }
+    }
+
+    public static void executarManutencao(Scanner sc){
+        List<OrdemManutencao> listOrdem = OrdemManutencaoDAO.listarOrdemManutencao();
+        List<OrdemPeca> listOrdemPeca = OrdemPecaDAO.listarOrdemPeca();
+        List<Peca> listPeca = PecaDAO.listPeca();
+        List<Maquina> listMaquina = MaquinaDAO.validar();
+        boolean valido = false;
+
+        View.texto(" __________________________________");
+        View.cabecalho("|       EXECUTAR  MANUTENÇÃO       |");
+        View.cabecalho("|__________________________________|");
+
+        OrdemManutencao ordemManutencao = new OrdemManutencao();
+        OrdemPeca ordemPeca = new OrdemPeca();
+        Peca peca = new Peca();
+        Maquina maquina = new Maquina();
+
+        if(listOrdem.isEmpty()){
+            View.texto("Nenhuma ordem de manutenção ativa.");
+        } else {
+            View.texto("Ordens de manutenção disponíveis:");
+            for(OrdemManutencao o : listOrdem){
+                System.out.println(o);
+            }
+            while(!valido){
+                View.texto("ID da ordem de manutenção:");
+                int id = Erros.entradaInt();
+
+                for(OrdemManutencao o : listOrdem){
+                    if(o.getId() == id){
+                        ordemManutencao = o;
+                        valido = true;
+                        break;
+                    }
+                }
+                if(!valido){
+                    View.texto("Ordem de manutenção inválida.");
+                }
+            }
+            valido = false;
+            for(OrdemPeca o : listOrdemPeca){
+                if(o.getOrdem().getId() == ordemManutencao.getId()){
+                    ordemPeca = o;
+                    valido = true;
+                }
+            }
+            if(!valido){
+                View.texto("Ordem de manutenção não possui uma peça cadastrada.");
+
+            } else {
+                for(Peca p : listPeca){
+                    System.out.println(p);
+                    if(p.getId() == ordemPeca.getPeca().getId()){
+                        peca = p;
+                    }
+                }
+                for(Maquina m : listMaquina){
+                    if(m.getId() == ordemManutencao.getMaquina().getId()){
+                        maquina = m;
+                    }
+                }
+
+                if(!OrdemPecaDAO.verificarEstoque(ordemPeca)){
+                    View.texto("Quantidade em estoque menor do que quantidade necessária.");
+                } else {
+                    PecaDAO.atualizarEstoque(peca, ordemPeca);
+                    OrdemManutencaoDAO.atualizarStatus(ordemManutencao);
+                    MaquinaDAO.atualizarStatus(maquina);
+                    View.texto("Manutenção executada com sucesso!");
                 }
             }
         }

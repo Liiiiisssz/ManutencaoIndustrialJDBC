@@ -9,6 +9,9 @@ public class OrdemManutencao {
     private LocalDate dataSolicitacao;
     private String status;
 
+    public OrdemManutencao(){
+    }
+
     public OrdemManutencao(int id, Maquina maquina, Tecnico tecnico, LocalDate dataSolicitacao, String status) {
         this.id = id;
         this.maquina = maquina;
