@@ -27,29 +27,26 @@ public class MaquinaDAO {
         }
     }
 
-    public static List<Maquina> validar(){
-        List<Maquina> maquinas = new ArrayList<>();
+    public static boolean validar(Maquina maquina) {
         String query = """
-                SELECT id, nome, setor, status
+                SELECT COUNT(0) AS linhas
                 FROM Maquina
+                WHERE nome = ?
+                AND setor = ?
                 """;
-        try(Connection conn = Conexao.conectar();
-            PreparedStatement stmt = conn.prepareStatement(query)){
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
+            stmt.setString(1, maquina.getNome());
+            stmt.setString(2, maquina.getSetor());
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                int id = rs.getInt("id");
-                String nome = rs.getString("nome");
-                String setor = rs.getString("setor");
-                String status = rs.getString("status");
-
-                var maquina = new Maquina(id, nome, setor, status);
-                maquinas.add(maquina);
+            if (rs.next() && rs.getInt("linhas") > 0) {
+                return true;
             }
         } catch (SQLException e){
             e.printStackTrace();
         }
-        return maquinas;
+        return false;
     }
 
     public static List<Maquina> listarMaquinas(){

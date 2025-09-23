@@ -1,5 +1,6 @@
 package org.manutencaoindustrial.dao;
 
+import org.manutencaoindustrial.model.Maquina;
 import org.manutencaoindustrial.model.Tecnico;
 import org.manutencaoindustrial.util.Conexao;
 
@@ -24,6 +25,26 @@ public class TecnicoDAO {
             stmt.setString(2, tecnico.getEspecialidade());
             stmt.executeUpdate();
         }
+    }
+
+    public static boolean validar(Tecnico tecnico) {
+        String query = """
+                SELECT COUNT(0) AS linhas
+                FROM Tecnico
+                WHERE nome = ?
+                """;
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, tecnico.getNome());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next() && rs.getInt("linhas") > 0) {
+                return true;
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static List<Tecnico> listarTecnicos(){

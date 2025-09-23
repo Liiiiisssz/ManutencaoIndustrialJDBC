@@ -33,7 +33,7 @@ public class OrdemManutencaoDAO {
 
     public static List<OrdemManutencao> listarOrdemManutencao(){
         List<OrdemManutencao> ordens = new ArrayList<>();
-        List<Maquina> listMaquina = MaquinaDAO.validar();
+        List<Maquina> listMaquina = MaquinaDAO.listarMaquinas();
         List<Tecnico> listTecnico = TecnicoDAO.listarTecnicos();
 
         String query = """

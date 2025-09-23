@@ -16,36 +16,15 @@ public class Service {
             View.menu();
             opcao = Erros.entradaInt();
             switch (opcao){
-                case 1 ->{
-                    var maquina = Cadastro.cadastrarMaquina(sc);
-                    try{
-                        MaquinaDAO.cadastrar(maquina);
-                        View.texto("Máquina cadastrada com sucesso!");
-                    } catch (SQLException e) {
-                        View.texto("Não foi possível cadastrar a máquina.");
-                        e.printStackTrace();
-                    }
-                }
-                case 2 ->{
-                    var tecnico = Cadastro.cadastrarTecnico(sc);
-                    try{
-                        TecnicoDAO.cadastrar(tecnico);
-                        View.texto("Técnico cadastrado com sucesso!");
-                    } catch (SQLException e){
-                        View.texto("Não foi possível cadastrar o técnico.");
-                        e.printStackTrace();
-                    }
-                }
-                case 3 ->{
-                    var peca = Cadastro.cadastrarPeca(sc);
-                    try{
-                        PecaDAO.cadastrar(peca);
-                        View.texto("Peça cadastrada com sucesso!");
-                    } catch (SQLException e){
-                        View.texto("Não foi possível cadastrar a peça.");
-                        e.printStackTrace();
-                    }
-                }
+                case 1 ->
+                    Cadastro.cadastrarMaquina(sc);
+
+                case 2 ->
+                    Cadastro.cadastrarTecnico(sc);
+
+                case 3 ->
+                    Cadastro.cadastrarPeca(sc);
+
                 case 4 ->{
                     var ordemManutencao = Cadastro.criarOrdemManutencao(sc);
                     if(ordemManutencao != null){

@@ -5,6 +5,7 @@ import org.manutencaoindustrial.model.*;
 import org.manutencaoindustrial.util.Erros;
 import org.manutencaoindustrial.view.View;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,106 +13,102 @@ import java.util.Scanner;
 
 public class Cadastro {
 
-    public static Maquina cadastrarMaquina(Scanner sc){
-        List<Maquina> listMaquina = MaquinaDAO.validar();
+    public static void cadastrarMaquina(Scanner sc){
         boolean valido = false;
         View.texto(" __________________________________");
         View.cabecalho("|        CADASTRAR  MÁQUINA        |");
         View.cabecalho("|__________________________________|");
 
-        String nome = null;
-        String setor = null;
-
-        while(!valido){
+        while(!valido) {
             View.texto("Nome:");
-            nome = sc.nextLine();
+            String nome = sc.nextLine();
             View.texto("Setor:");
-            setor = sc.nextLine();
-            if(listMaquina.isEmpty()){
-                valido = true;
-            } else {
-                for(Maquina m : listMaquina){
-                    if (!m.getNome().equalsIgnoreCase(nome) || !m.getSetor().equalsIgnoreCase(setor)){
-                        valido = true;
-                        break;
+            String setor = sc.nextLine();
+
+            var maquina = new Maquina(nome, setor, "OPERACIONAL");
+            if (!nome.isEmpty() && !setor.isEmpty()) {
+                if (!MaquinaDAO.validar(maquina)) {
+                    valido = true;
+                    try{
+                        MaquinaDAO.cadastrar(maquina);
+                    } catch (SQLException e){
+                        e.printStackTrace();
                     }
                 }
-            }
-            if(!valido){
-                View.texto("Máquina já cadastrada.");
+                if (!valido) {
+                    View.texto("Máquina já cadastrada.");
+                }
+            } else {
+                View.texto("Os campos não podem ficar em branco.");
             }
         }
-        String status = "OPERACIONAL";
-
-        return new Maquina(nome, setor, status);
     }
 
-    public static Tecnico cadastrarTecnico(Scanner sc){
-        List<Tecnico> listTecnico = TecnicoDAO.listarTecnicos();
+    public static void cadastrarTecnico(Scanner sc){
         boolean valido = false;
         View.texto(" __________________________________");
         View.cabecalho("|        CADASTRAR  TÉCNICO        |");
         View.cabecalho("|__________________________________|");
 
-        String nome = null;
-        String especialidade = null;
-
         while(!valido){
             View.texto("Nome:");
-            nome = sc.nextLine();
+            String nome = sc.nextLine();
             View.texto("Especialidade: ");
-            especialidade = sc.nextLine();
-            if(listTecnico.isEmpty()){
-                valido = true;
-            } else {
-                for(Tecnico t : listTecnico){
-                    if(!t.getNome().equalsIgnoreCase(nome) || !t.getEspecialidade().equalsIgnoreCase(especialidade)){
-                        valido = true;
-                        break;
+            String especialidade = sc.nextLine();
+
+            var tecnico = new Tecnico(nome, especialidade);
+            if(!nome.isEmpty() && !especialidade.isEmpty()){
+                if(!TecnicoDAO.validar(tecnico)){
+                    valido = true;
+                    try{
+                        TecnicoDAO.cadastrar(tecnico);
+                    } catch (SQLException e){
+                        e.printStackTrace();
                     }
                 }
-            }
-            if(!valido){
-                View.texto("Técnico já cadastrado.");
+                if(!valido){
+                    View.texto("Técnico já cadastrado.");
+                }
+            } else {
+                View.texto("Os campos não podem ficar em branco.");
             }
         }
-        return new Tecnico(nome, especialidade);
     }
 
-    public static Peca cadastrarPeca(Scanner sc){
-        List<Peca> listPeca = PecaDAO.listPeca();
+    public static void cadastrarPeca(Scanner sc){
         boolean valido = false;
         View.texto(" __________________________________");
         View.cabecalho("|          CADASTRAR PEÇA          |");
         View.cabecalho("|__________________________________|");
 
-        String nome = null;
-        double estoque = 0;
         while(!valido){
             View.texto("Nome:");
-            nome = sc.nextLine();
-            if(listPeca.isEmpty()){
-                valido = true;
-            } else {
-                for(Peca p : listPeca){
-                    if(!p.getNome().equalsIgnoreCase(nome)){
+            String nome = sc.nextLine();
+            if(!nome.isEmpty()){
+                double estoque = 0;
+                while(estoque <= 0){
+                    View.texto("Quantidade em estoque:");
+                    estoque = Erros.entradaDouble();
+                }
+                if(estoque <= 0){
+                    View.texto("O estoque não pode ser menor que 0.");
+                } else {
+                    var peca = new Peca(nome, estoque);
+                    if(!PecaDAO.validar(peca)){
                         valido = true;
-                        break;
+                        try{
+                            PecaDAO.cadastrar(peca);
+                        } catch (SQLException e){
+                            e.printStackTrace();
+                        }
+                    } else {
+                        View.texto("Peça já cadastrada.");
                     }
                 }
-                if(!valido){
-                    View.texto("Peça já cadastrada.");
-                }
+            } else {
+                View.texto("Os campos não podem ficar em branco");
             }
         }
-        while(estoque <= 0){
-            View.texto("Quantidade em estoque:");
-            estoque = Erros.entradaDouble();
-            if(estoque <= 0){
-                View.texto("O estoque não pode ser menor que 0.");
-            }
-        }
-        return new Peca(nome, estoque);
     }
 
     public static OrdemManutencao criarOrdemManutencao(Scanner sc){
@@ -255,7 +252,7 @@ public class Cadastro {
         List<OrdemManutencao> listOrdem = OrdemManutencaoDAO.listarOrdemManutencao();
         List<OrdemPeca> listOrdemPeca = OrdemPecaDAO.listarOrdemPeca();
         List<Peca> listPeca = PecaDAO.listPeca();
-        List<Maquina> listMaquina = MaquinaDAO.validar();
+        List<Maquina> listMaquina = MaquinaDAO.listarMaquinas();
         boolean valido = false;
 
         View.texto(" __________________________________");

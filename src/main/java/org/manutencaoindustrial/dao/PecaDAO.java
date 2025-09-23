@@ -2,6 +2,7 @@ package org.manutencaoindustrial.dao;
 
 import org.manutencaoindustrial.model.OrdemPeca;
 import org.manutencaoindustrial.model.Peca;
+import org.manutencaoindustrial.model.Tecnico;
 import org.manutencaoindustrial.util.Conexao;
 
 import java.sql.Connection;
@@ -25,6 +26,26 @@ public class PecaDAO {
             stmt.setDouble(2, peca.getEstoque());
             stmt.executeUpdate();
         }
+    }
+
+    public static boolean validar(Peca peca) {
+        String query = """
+                SELECT COUNT(0) AS linhas
+                FROM Peca
+                WHERE nome = ?
+                """;
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, peca.getNome());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next() && rs.getInt("linhas") > 0) {
+                return true;
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static List<Peca> listPeca(){
