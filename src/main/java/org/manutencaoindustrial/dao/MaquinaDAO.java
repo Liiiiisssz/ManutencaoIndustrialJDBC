@@ -75,16 +75,17 @@ public class MaquinaDAO {
         return maquinas;
     }
 
-    public static void atualizarStatus(Maquina maquina){
+    public static void atualizarStatus(Maquina maquina, String status){
         String query = """
                 UPDATE Maquina
-                SET status = 'OPERACIONAL'
+                SET status = ?
                 WHERE id = ?
                 """;
         try(Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(query)){
 
-            stmt.setInt(1, maquina.getId());
+            stmt.setString(1, status);
+            stmt.setInt(2, maquina.getId());
             stmt.executeUpdate();
         } catch (SQLException e){
             e.printStackTrace();

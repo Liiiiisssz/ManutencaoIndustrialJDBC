@@ -25,17 +25,9 @@ public class Service {
                 case 3 ->
                     Cadastro.cadastrarPeca(sc);
 
-                case 4 ->{
-                    var ordemManutencao = Cadastro.criarOrdemManutencao(sc);
-                    if(ordemManutencao != null){
-                        try{
-                            OrdemManutencaoDAO.criar(ordemManutencao);
-                            View.texto("Ordem de manutenção criada com sucesso!");
-                        } catch (SQLException e){
-                            View.texto("Não foi possível criar a ordem de manutenção.");
-                        }
-                    }
-                }
+                case 4 ->
+                    Cadastro.criarOrdemManutencao(sc);
+
                 case 5 ->{
                     var ordemPeca = Cadastro.criarOrdemPeca(sc);
                     if(ordemPeca != null){

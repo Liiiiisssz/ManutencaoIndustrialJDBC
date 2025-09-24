@@ -2,9 +2,11 @@ package org.manutencaoindustrial.service;
 
 import org.manutencaoindustrial.dao.*;
 import org.manutencaoindustrial.model.*;
+import org.manutencaoindustrial.util.Conexao;
 import org.manutencaoindustrial.util.Erros;
 import org.manutencaoindustrial.view.View;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public class Cadastro {
                     valido = true;
                     try{
                         MaquinaDAO.cadastrar(maquina);
+                        View.texto("Máquina cadastrada com sucesso!");
                     } catch (SQLException e){
                         e.printStackTrace();
                     }
@@ -62,6 +65,7 @@ public class Cadastro {
                     valido = true;
                     try{
                         TecnicoDAO.cadastrar(tecnico);
+                        View.texto("Técnico cadastrado com sucesso!");
                     } catch (SQLException e){
                         e.printStackTrace();
                     }
@@ -98,6 +102,7 @@ public class Cadastro {
                         valido = true;
                         try{
                             PecaDAO.cadastrar(peca);
+                            View.texto("Peça cadastrada com sucesso!");
                         } catch (SQLException e){
                             e.printStackTrace();
                         }
@@ -111,7 +116,7 @@ public class Cadastro {
         }
     }
 
-    public static OrdemManutencao criarOrdemManutencao(Scanner sc){
+    public static void criarOrdemManutencao(Scanner sc){
         List<Maquina> listMaquina = MaquinaDAO.listarMaquinas();
         List<Tecnico> listTecnico = TecnicoDAO.listarTecnicos();
         boolean valido = false;
@@ -124,7 +129,6 @@ public class Cadastro {
 
         if(listMaquina.isEmpty()) {
             View.texto("Nenhuma máquina disponível.");
-            return null;
         } else {
             View.texto("Máquinas disponíveis:");
             for(Maquina m : listMaquina){
@@ -172,9 +176,33 @@ public class Cadastro {
                 }
             }
             LocalDate data = LocalDate.now();
-            String status = "PENDENTE";
+            var ordem = new OrdemManutencao(maquina, tecnico, data, "PENDENTE");
 
-            return new OrdemManutencao(maquina, tecnico, data, status);
+            Connection conn = null;
+            try{
+                conn = Conexao.conectar();
+                conn.setAutoCommit(false);
+
+                OrdemManutencaoDAO.criar(ordem);
+                MaquinaDAO.atualizarStatus(maquina, "EM_MANUTENCAO");
+
+                conn.commit();
+                View.texto("Ordem de manutenção criada com sucesso!");
+            } catch (SQLException e){
+                try{
+                    conn.rollback();
+                    conn.close();
+                } catch (SQLException e2){
+                    e2.printStackTrace();
+                }
+                View.texto("Erro ao conectar ao banco");
+            } finally {
+                try{
+                    conn.close();
+                } catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -314,7 +342,7 @@ public class Cadastro {
                 } else {
                     PecaDAO.atualizarEstoque(peca, ordemPeca);
                     OrdemManutencaoDAO.atualizarStatus(ordemManutencao);
-                    MaquinaDAO.atualizarStatus(maquina);
+                    MaquinaDAO.atualizarStatus(maquina, "OPERACIONAL");
                     View.texto("Manutenção executada com sucesso!");
                 }
             }

@@ -17,7 +17,6 @@ public class OrdemManutencaoDAO {
                 INSERT INTO OrdemManutencao
                 (idMaquina, idTecnico, dataSolicitacao, status)
                 VALUES (?, ?, ?, ?);
-                UPDATE Maquina SET status = 'EM_MANUTENCAO' WHERE id = ?;
                 """;
         try(Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(query)){
@@ -26,7 +25,6 @@ public class OrdemManutencaoDAO {
             stmt.setInt(2, ordemManutencao.getTecnico().getId());
             stmt.setDate(3, Date.valueOf(ordemManutencao.getDataSolicitacao()));
             stmt.setString(4, ordemManutencao.getStatus());
-            stmt.setInt(5, ordemManutencao.getMaquina().getId());
             stmt.executeUpdate();
         }
     }
