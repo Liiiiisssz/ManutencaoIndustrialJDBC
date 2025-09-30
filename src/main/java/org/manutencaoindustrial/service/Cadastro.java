@@ -206,7 +206,7 @@ public class Cadastro {
         }
     }
 
-    public static OrdemPeca criarOrdemPeca(Scanner sc){
+    public static void criarOrdemPeca(Scanner sc){
         List<OrdemManutencao> listOrdemManutencao = OrdemManutencaoDAO.listarOrdemManutencao();
         List<Peca> listPeca = PecaDAO.listPeca();
         boolean valido = false;
@@ -219,7 +219,6 @@ public class Cadastro {
 
         if(listOrdemManutencao.isEmpty()){
             View.texto("Nenhuma ordem de manutenção disponível.");
-            return null;
         } else {
             View.texto("Ordens de manutenção disponíveis:");
             for(OrdemManutencao o : listOrdemManutencao){
@@ -244,7 +243,6 @@ public class Cadastro {
             valido = false;
             if(listPeca.isEmpty()){
                 View.texto("Nenhuma peça disponível.");
-                return null;
             } else {
                 View.texto("Peças disponíveis:");
                 for(Peca p : listPeca){
@@ -271,7 +269,14 @@ public class Cadastro {
                     View.texto("Quantidade de peças necessária:");
                     quantidade = Erros.entradaDouble();
                 }
-                return new OrdemPeca(ordemManutencao, peca, quantidade);
+                var ordemPeca = new OrdemPeca(ordemManutencao, peca, quantidade);
+                try{
+                    OrdemPecaDAO.criar(ordemPeca);
+                    View.texto("Associação criada com sucesso!");
+                } catch (SQLException e){
+                    View.texto("Não foi possível associar a peça.");
+                    e.printStackTrace();
+                }
             }
         }
     }

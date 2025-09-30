@@ -28,18 +28,9 @@ public class Service {
                 case 4 ->
                     Cadastro.criarOrdemManutencao(sc);
 
-                case 5 ->{
-                    var ordemPeca = Cadastro.criarOrdemPeca(sc);
-                    if(ordemPeca != null){
-                        try{
-                            OrdemPecaDAO.criar(ordemPeca);
-                            View.texto("Associação realizada com sucesso!");
-                        } catch (SQLException e){
-                            View.texto("Não foi possível associar a peça.");
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                case 5 ->
+                    Cadastro.criarOrdemPeca(sc);
+
                 case 6 ->
                     Cadastro.executarManutencao(sc);
 
